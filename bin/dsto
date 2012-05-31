@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+
+use Data::Dumper;
+use Storable;
+
+my $file = shift;
+my $data = retrieve $file;
+
+print Dumper $data;

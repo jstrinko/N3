@@ -1,0 +1,5 @@
+#!/usr/bin/perl
+
+use N3::User;
+my $id = shift;
+warn N3::User::bucket($id);
