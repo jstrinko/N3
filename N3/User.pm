@@ -14,7 +14,7 @@ sub new {
     return bless $tmp, $class;
 }
 
-sub loadUser {
+sub load_user {
     my $class = shift;
     my $id = shift;
     my $tmp = {
@@ -26,7 +26,7 @@ sub loadUser {
     return;
 }
 
-sub viewingUser {
+sub viewing_user {
     my $class = shift;
     return $class->new;
 }
@@ -37,10 +37,10 @@ sub id {
     return $self->{id};
 }
 
-sub numericId {
+sub numeric_id {
     my $self = shift;
-    $self->{numericId} = shift if @_;
-    return $self->{numericId};
+    $self->{numeric_id} = shift if @_;
+    return $self->{numeric_id};
 }
 
 sub password {
@@ -49,25 +49,25 @@ sub password {
     return $self->{password};
 }
 
-sub isAnonymous {
+sub is_anonymous {
     my $self = shift;
-    $self->{isAnonymous} = shift if @_;
-    return $self->{isAnonymous};
+    $self->{is_anonymous} = shift if @_;
+    return $self->{is_anonymous};
 }
 
-sub isNamed {
+sub is_named {
     my $self = shift;
-    return !$self->isAnonymous;
+    return !$self->is_anonymous;
 }
 
-sub userFilename {
-    my $userId = shift;
+sub user_filename {
+    my $user_id = shift;
     my $filename = shift;
-    while (length "$userId" < 4) {
-	$userId = "_" . $userId;
+    while (length "$user_id" < 4) {
+	$user_id = "_" . $user_id;
     }
-    my ($firsttwo, $secondtwo) = $userId =~ m{^(..)(..)}si;
-    my $fullpath = "$ENV{USERTOP}/" . bucket($userId) . "/$firsttwo/$secondtwo/$userId/$filename";
+    my ($firsttwo, $secondtwo) = $user_id =~ m{^(..)(..)}si;
+    my $fullpath = "$ENV{USERTOP}/" . bucket($userId) . "/$firsttwo/$secondtwo/$user_id/$filename";
     my ($dirpath) = $fullpath =~ m{^(.*)/}si;
     mkpath($dirpath) unless -d $dirpath;
     return $fullpath;
@@ -82,7 +82,7 @@ sub bucket {
 
 sub filename {
     my $self = shift;
-    return userFilename($self->id, "userdata.sto");
+    return user_filename($self->id, "userdata.sto");
 }
 
 1;

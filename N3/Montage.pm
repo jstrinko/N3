@@ -5,14 +5,14 @@ use N3::Util;
 
 init();
 
-my %MontageMap;
+my %Montage_Map;
 
 sub init {
-    my $montageFile = "$ENV{SRCTOP}/$ENV{PROJECT}/montages.ref";
-    open(MONTAGE, $montageFile) or die "Unable to open montage file: $!";
+    my $montage_file = "$ENV{SRCTOP}/$ENV{PROJECT}/montages.ref";
+    open(MONTAGE, $montage_file) or die "Unable to open montage file: $!";
     while(<MONTAGE>) {
 	my $line = $_;
-	my ($id, $imageLocation, $width, $height, $xOffset, $yOffset) = 
+	my ($id, $image_location, $width, $height, $x_offset, $y_offset) = 
 	    map {
 		my $tmp = $_;
 		$tmp =~ s{\s}{}gis;
@@ -20,13 +20,13 @@ sub init {
 	    }
 	    split(/\|/, $line);
 	if ($id) {
-	    $MontageMap{$id} = {
+	    $Montage_Map{$id} = {
 		id => $id,
-		imageLocation => $imageLocation,
+		imageLocation => $image_location,
 		width => $width,
 		height => $height,
-		xOffset => $xOffset,
-		yOffset => $yOffset,
+		xOffset => $x_offset,
+		yOffset => $y_offset,
 	    };
 	}
     }
@@ -36,14 +36,14 @@ sub init {
 sub new {
     my $class = shift;
     my $id = shift;
-    die "No montage found for: $id" unless $MontageMap{$id};
-    my $self = $MontageMap{$id};
+    die "No montage found for: $id" unless $Montage_Map{$id};
+    my $self = $Montage_Map{$id};
     return bless $self, $class;
 }
 
-sub imageLocation {
+sub image_location {
     my $self = shift;
-    return $self->{imageLocation};
+    return $self->{image_location};
 }
 
 sub width {
@@ -56,14 +56,14 @@ sub height {
     return $self->{height};
 }
 
-sub xOffset {
+sub x_offset {
     my $self = shift;
-    return $self->{xOffset};
+    return $self->{x_offset};
 }
 
-sub yOffset {
+sub y_offset {
     my $self = shift;
-    return $self->{yOffset};
+    return $self->{y_offset};
 }
 
 1;

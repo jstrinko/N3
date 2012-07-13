@@ -8,7 +8,7 @@ use N3::User;
 use N3::Montage;
 use Apache2::Const -compile => qw(REDIRECT);
 
-sub setPage {
+sub set_page {
     my $self = shift;
     my $page = N3::Page->new($self->uri);
     N3->page($page);
@@ -20,7 +20,7 @@ sub setUser {
     my $class = $key . "::User";
     eval "use $class;";
     warn "Eval error when calling $class: $@" if $@;
-    my $user = $class->viewingUser();
+    my $user = $class->viewing_user();
     N3->user($user);
 }
 
@@ -50,9 +50,9 @@ sub customParam {
     my $self = shift;
     my $name = shift;
     if (@_) {
-        $self->{customParams}->{$name} = shift;
+        $self->{custom_params}->{$name} = shift;
     }
-    return $self->{customParams}->{$name}
+    return $self->{custom_params}->{$name}
 }
 
 sub redirect {

@@ -5,23 +5,23 @@ use base 'N3::Savable';
 
 sub new {
     my $class = shift;
-    my $ownerId = shift;
+    my $owner_id = shift;
     my $tmp = { 
 	items => {},
-	ownerId => $ownerId,
+	ownerId => $owner_id,
     };
     bless $tmp, $class;
     my $self = $tmp->load;
     return $self;
 }
 
-sub ownerId {
+sub owner_id {
     my $self = shift;
-    $self->{ownerId} = shift if @_;
-    return $self->{ownerId};
+    $self->{owner_id} = shift if @_;
+    return $self->{owner_id};
 }
 
-sub addItem {
+sub add_item {
     my $self = shift;
     my $item = shift;
     die "You must provide an item" unless $item;
@@ -33,7 +33,7 @@ sub addItem {
     return $self->{items}->{$id};
 }
 
-sub removeItem {
+sub remove_item {
     my $self = shift;
     my $id = shift;
     die "Must provide an id" unless $id;

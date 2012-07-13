@@ -34,7 +34,7 @@ sub rinse {
     }
 }
 
-sub numericPath {
+sub numeric_path {
     my $self = shift;
     my $number = shift;
     $number = "0$number" if ((length "$number") % 2);

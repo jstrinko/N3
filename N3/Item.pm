@@ -11,10 +11,10 @@ sub new {
     return bless $self, $class;
 }
 
-sub ownerId {
+sub owner_id {
     my $self = shift;
-    $self->{ownerId} = shift if @_;
-    return $self->{ownerId};
+    $self->{owner_id} = shift if @_;
+    return $self->{owner_id};
 }
 
 sub id {

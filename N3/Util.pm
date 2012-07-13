@@ -5,7 +5,7 @@ use MIME::Base64 ();
 
 our $Cipher_Key = '5chw347yb4115';
 
-sub fileContents {
+sub file_contents {
     my $file = shift;
     open(my $fh, '<:utf8', $file) or return;
     my $buffer;
@@ -13,7 +13,7 @@ sub fileContents {
     return $buffer;
 }
 
-sub stackTrace {
+sub stack_trace {
     my $skip = shift || 1;
     my $trace;
     my $i = $skip;
@@ -23,7 +23,7 @@ sub stackTrace {
     return $trace;
 }
 
-sub isValidEmail {
+sub is_valid_email {
     my $email = shift;
     return $email =~ m{^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$}si;
 }

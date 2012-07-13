@@ -33,7 +33,7 @@ sub request {
 	}
 	my $uri = $Request->uri;
 	if ($uri) {
-	    $Request->setPage;
+	    $Request->set_page;
 	}
 	else {
 	    die "No URI: $uri";
@@ -62,7 +62,7 @@ sub user {
 	my $class = $key . "::User";
 	eval "use $class";
 	warn "Eval error when calling $class: $@" if $@;
-	$User = $class->viewingUser();
+	$User = $class->viewing_user();
 	$Request->pnotes('hasSetUser', 1);
     }
     return $User;

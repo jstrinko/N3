@@ -9,7 +9,7 @@ use Apache2::Cookie;
 use Apache2::Request;
 use Apache2::Upload;
 
-my $uploadHook = sub {
+my $Upload_Hook = sub {
     return;
 };
 
@@ -19,7 +19,7 @@ sub new {
     my $self = {
 	r => Apache2::Request->new(
 	    $req,
-	    UPLOAD_HOOK => $uploadHook,
+	    UPLOAD_HOOK => $Upload_Hook,
 	    TEMP_DIR => "/$ENV{PROJECT}/tmp",
 	),
     };
@@ -33,14 +33,15 @@ sub new {
     return $self;
 }
 
-sub canGzip {
+sub can_gzip {
     my $self = shift;
-    return if $self->customParam('dontGzip');
-    my $acceptEnc = $self->headers_in->get("Accept-Encoding");
-    my $userAgent = $self->headers_in->get("User-Agent");
-    if(index($acceptEnc, "gzip") >= 0 or
-       $userAgent =~ m{^Mozilla/\d+\.\d+[\s\[\]\w\-]+(\(X11|Mac.+PPC,\sNav)})
-    {
+    return if $self->custom_param('dontGzip');
+    my $accept_enc = $self->headers_in->get("Accept-Encoding");
+    my $user_agent = $self->headers_in->get("User-Agent");
+    if (
+	index($accept_enc, "gzip") >= 0 or
+	$user_agent =~ m{^Mozilla/\d+\.\d+[\s\[\]\w\-]+(\(X11|Mac.+PPC,\sNav)}
+    ) {
         return 1;
     }
     else {

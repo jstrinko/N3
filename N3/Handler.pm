@@ -12,7 +12,7 @@ use Compress::Zlib;
 
 use N3;
 
-my $ChunkSize = 32768;
+my $Chunk_Size = 32768;
 
 sub handler {
     my $r = shift;
@@ -20,28 +20,28 @@ sub handler {
     my $page = N3->page;
     $page->run;
     my $file = $request->pnotes('contentsFromFile');
-    my $type = $request->customParam('contentType') || 'text/html';
+    my $type = $request->custom_param('contentType') || 'text/html';
     $request->content_type($type);
     if ($file) {
-	my $contentLength = -s $file;
+	my $content_length = -s $file;
 	my $fh = FileHandle->new($file);
 	die "Non-existant file: $file" unless $fh;
 	my $buf;
 	my $sent = 0;
-	while(read($fh, $buf, $ChunkSize)) {
+	while(read($fh, $buf, $Chunk_Size)) {
 	    $request->print($buf);
-	    $sent += $ChunkSize;
+	    $sent += $Chunk_Size;
 	}
     }
     else {
 	my $contents = $page->contents;
-	if ($request->canGzip) {
+	if ($request->can_gzip) {
 	    $request->content_encoding('gzip');
 	    $contents = Compress::Zlib::memGzip($contents);
 	}
 	$request->headers_out->set('Content-Length', length($contents));
 	$request->status(200) unless $request->status;
-	$request->print($contents) unless $request->customParam('headerOnly');
+	$request->print($contents) unless $request->custom_param('headerOnly');
     }
     if ($request->status eq Apache2::Const::REDIRECT) {
 	return Apache2::Const::REDIRECT;

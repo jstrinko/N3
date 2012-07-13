@@ -8,24 +8,24 @@ use Data::Dumper;
 
 init();
 
-my %PagesRef;
-my %PagesCache;
-my %ShortMap;
+my %Pages_Ref;
+my %Pages_Cache;
+my %Short_Map;
 
 sub new {
     my $class = shift;
     my $uri = shift;
     my $self;
-    if (!$PagesRef{$uri}) {
+    if (!$Pages_Ref{$uri}) {
 	my @parts = split(/\//, $uri);
 	for(my $x = 0; $x < scalar @parts; $x++) {
-	    my @tmpParts;
+	    my @tmp_parts;
 	    foreach my $y (1..$x) {
-		push @tmpParts, $parts[$y];
+		push @tmp_parts, $parts[$y];
 	    }
-	    my $tmpUri = "/" . join("/", @tmpParts);
-	    if ($PagesRef{$tmpUri}) {
-		$self = $PagesRef{$tmpUri};
+	    my $tmp_uri = "/" . join("/", @tmp_parts);
+	    if ($Pages_Ref{$tmpUri}) {
+		$self = $Pages_Ref{$tmpUri};
 		my @values;
 		foreach my $y (($x+1)..scalar @parts) {
 		    push @values, $parts[$y];
@@ -38,7 +38,7 @@ sub new {
 	}
     }
     else {
-        $self = $PagesRef{$uri};
+        $self = $Pages_Ref{$uri};
     }
 
     return bless $self, $class;
@@ -46,67 +46,67 @@ sub new {
 
 sub run {
     my $self = shift;
-    if (1 or !$PagesCache{$self->{uri}}) {
-	my $addIndex = $self->{localLocation} =~ m{/$}gis ? "index" : "";
-	my $fullLocation = $self->{localLocation} . $addIndex;
-	my $base = "$ENV{SRCTOP}/$ENV{PROJECT}/htdocs$fullLocation";
-	my $htmlFile = "$base.html";
-	my $perlFile = "$base.pl";
-	my $htmlContents;
-	my $perlContents;
-	if (-e $htmlFile) {
-	    $htmlContents = N3::Util::fileContents($htmlFile);
+    if (!$Pages_Cache{$self->{uri}}) {
+	my $add_index = $self->{local_location} =~ m{/$}gis ? "index" : "";
+	my $full_location = $self->{local_location} . $add_index;
+	my $base = "$ENV{SRCTOP}/$ENV{PROJECT}/htdocs$full_location";
+	my $html_file = "$base.html";
+	my $perl_file = "$base.pl";
+	my $html_contents;
+	my $perl_contents;
+	if (-e $html_file) {
+	    $html_contents = N3::Util::fileContents($html_file);
 	}
-	if (-e $perlFile) {
-	    $perlContents = N3::Util::fileContents($perlFile);
+	if (-e $perl_file) {
+	    $perl_contents = N3::Util::fileContents($perl_file);
 	}
-	my @tmpElements;
-	$fullLocation = "htdocs$fullLocation";
-	my $nameSpaceString = $fullLocation;
-	$nameSpaceString =~ s{\..*$}{}gis;
-	$nameSpaceString =~ s{\-}{}gis;
-	my $nameSpace = join("::", split(/\//, $nameSpaceString));
-	my $firstLetterCapitalizedProject = uc(substr($ENV{PROJECT}, 0, 1)) . substr($ENV{PROJECT},1,length($ENV{PROJECT}) - 1);
-	$perlContents = "package $nameSpace; use base '${firstLetterCapitalizedProject}::Template'; use strict; $perlContents 1;";
-	my $pageObject = bless {}, $nameSpace;
-	if ($htmlContents) {
-	    eval $perlContents;
+	my @tmp_elements;
+	$full_location = "htdocs$full_location";
+	my $name_space_string = $full_location;
+	$name_space_string =~ s{\..*$}{}gis;
+	$name_space_string =~ s{\-}{}gis;
+	my $name_space = join("::", split(/\//, $name_space_string));
+	my $first_letter_capitalized_project = uc(substr($ENV{PROJECT}, 0, 1)) . substr($ENV{PROJECT},1,length($ENV{PROJECT}) - 1);
+	$perl_contents = "package $name_space; use base '${first_letter_capitalized_project}::Template'; use strict; $perl_contents 1;";
+	my $page_object = bless {}, $name_space;
+	if ($html_contents) {
+	    eval $perl_contents;
 	    warn $@ if $@;
-	    if ($pageObject->can('init')) {
-		push @tmpElements, { 
+	    if ($page_object->can('init')) {
+		push @tmp_elements, { 
 		    type => 'object', 
-		    object => $pageObject,
+		    object => $page_object,
 		    method => 'init',
 		};
 	    }
-	    $htmlContents =~ s{\s+}{ }gis;
-	    $htmlContents =~ s{^\s+}{}gis;
-	    $htmlContents =~ s{\s+$}{}gis;
-	    $htmlContents =~ s{>\s+<}{><}gis;
-	    $htmlContents =~ s{<(\w+):\s*(.*?)>(?:(.*?)<:\1>)?}{$pageObject->$1($self->parseArgs($2), $3)}goe;
-	    while($htmlContents =~ m{\G(.*?)(?:\$([a-zA-Z_]\w*)\.(\w+)(\(.*?\))?)}mcosg) {
+	    $html_contents =~ s{\s+}{ }gis;
+	    $html_contents =~ s{^\s+}{}gis;
+	    $html_contents =~ s{\s+$}{}gis;
+	    $html_contents =~ s{>\s+<}{><}gis;
+	    $html_contents =~ s{<(\w+):\s*(.*?)>(?:(.*?)<:\1>)?}{$page_object->$1($self->parse_args($2), $3)}goe;
+	    while($html_contents =~ m{\G(.*?)(?:\$([a-zA-Z_]\w*)\.(\w+)(\(.*?\))?)}mcosg) {
 		my $html = $1;
-		push @tmpElements, {
+		push @tmp_elements, {
 		    type => 'html',
 		    html => $html,
     		};
 		if ($2) {
-		    my ($objectName, $method, $args) = ($2, $3, $4);
+		    my ($object_name, $method, $args) = ($2, $3, $4);
 		    $args =~ s{\(|\)}{}gis;
 		    my $object;
-		    if ($objectName eq 'self') {
-			$object = $pageObject;
+		    if ($object_name eq 'self') {
+			$object = $page_object;
 		    }
-		    elsif ($objectName eq 'request') {
+		    elsif ($object_name eq 'request') {
 			$object = N3->request;
 		    }
-		    elsif ($objectName eq 'page') {
+		    elsif ($object_name eq 'page') {
 			$object = N3->page;
 		    }
-		    elsif ($objectName eq 'user') {
+		    elsif ($object_name eq 'user') {
 			$object = N3->user;
 		    }
-		    push @tmpElements, {
+		    push @tmp_elements, {
 			type => 'object',
 			object => $object,
 			method => $method,
@@ -114,24 +114,24 @@ sub run {
 		    };		    
 		}
 	    }
-	    push @tmpElements, {
+	    push @tmp_elements, {
 		type => 'html',
-		html => substr($htmlContents, pos($htmlContents), length($htmlContents) - pos($htmlContents)),
+		html => substr($html_contents, pos($html_contents), length($html_contents) - pos($html_contents)),
 	    };
 	}
-	elsif ($perlContents) {
-	    eval $perlContents;
+	elsif ($perl_contents) {
+	    eval $perl_contents;
 	    warn $@ if $@;
-	    push @tmpElements, { 
+	    push @tmp_elements, { 
 		type => 'object', 
-		object => $pageObject,
+		object => $page_object,
 		method => 'init',
 	    };
 	}
 	else {
 	    N3->request->redirect('/error');
 	}
-	$PagesCache{$self->{uri}}->{elements} = \@tmpElements;
+	$Pages_Cache{$self->{uri}}->{elements} = \@tmp_elements;
     }
     my @params = @{$self->{params}};
     if (scalar @params) {
@@ -139,7 +139,7 @@ sub run {
 	    N3->request->customParam($params[$x], $self->{'values'}->[$x]);
 	}
     }
-    my $elements = $PagesCache{$self->{uri}}->{elements};
+    my $elements = $Pages_Cache{$self->{uri}}->{elements};
     my $contents;
     foreach my $element (@$elements) {
 	$contents .= $self->render($element);
@@ -156,7 +156,7 @@ sub render {
     elsif ($element->{type} eq 'object') {
 	my $object = $element->{object};
 	my $method = $element->{method};
-	return $object->$method($self->parseArgs($element->{argsString}));
+	return $object->$method($self->parse_args($element->{args_string}));
     }
 }
 
@@ -168,11 +168,11 @@ sub contents {
     return $self->{contents};
 }
 
-sub parseArgs {
+sub parse_args {
     my $self = shift;	
-    my $argsString = shift;
-    return $argsString unless $argsString =~ m{=};
-    my $p = HTML::TokeParser->new(\"<p $argsString>") || return {};
+    my $args_string = shift;
+    return $args_string unless $args_string =~ m{=};
+    my $p = HTML::TokeParser->new(\"<p $args_string>") || return {};
     my $token = $p->get_token;
     return $token->[2];
 }
@@ -182,41 +182,41 @@ sub version {
     return $self->{version};
 }
 
-sub uriToShort {
+sub uri_to_short {
     my $self = shift;
     my $uri = shift;
-    return $PagesRef{$uri}->{short}
+    return $Pages_Ref{$uri}->{short}
 }
 
-sub shortToUri {
+sub short_to_uri {
     my $self = shift;
     my $short = shift;
-    return $ShortMap{$short};
+    return $Short_Map{$short};
 }
 
 sub init {
-    my $pagesFile = "$ENV{SRCTOP}/$ENV{PROJECT}/pages.ref";
-    open(PAGES, $pagesFile) or die "Unable to open pages file: $!";
+    my $pages_file = "$ENV{SRCTOP}/$ENV{PROJECT}/pages.ref";
+    open(PAGES, $pages_file) or die "Unable to open pages file: $!";
     while(<PAGES>) {
 	my $line = $_;
-	my ($uri, $localLocation, $paramKeys, $version, $skipLoadUser, $short) = 
+	my ($uri, $local_location, $param_keys, $version, $skip_load_user, $short) = 
 	    map { 
 		my $tmp = $_; 
 		$tmp =~ s{\s}{}gis; 
 		$tmp; 
 	    } 
 	    split(/\|/, $line);
-	my @params = split(/\//, $paramKeys);
-	if ($uri and $localLocation) {
-	    $PagesRef{$uri} = {
+	my @params = split(/\//, $param_keys);
+	if ($uri and $local_location) {
+	    $Pages_Ref{$uri} = {
 		uri => $uri,
-		localLocation => $localLocation,
-		skipLoadUser => $skipLoadUser,
+		localLocation => $local_location,
+		skipLoadUser => $skip_load_user,
 		version => $version,
 		params => \@params,
 		short => $short,
 	    };
-	    $ShortMap{$short} = $uri;
+	    $Short_Map{$short} = $uri;
 	}
     }
     close(PAGES);
