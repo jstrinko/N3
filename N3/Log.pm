@@ -22,7 +22,7 @@ use N3::Util;
 
 sub _log {
     my ($message, $level) = @_;
-    my $extra = N3::Util::stackTrace(3) unless $level eq 'WARN';
+    my $extra = N3::Util::stack_trace(3) unless $level eq 'WARN';
     print STDERR $message . $extra . "\n";
     if ($level == $level * 1 && $level != 0) {
 	return CORE::log($level);

@@ -67,7 +67,7 @@ sub user_filename {
 	$user_id = "_" . $user_id;
     }
     my ($firsttwo, $secondtwo) = $user_id =~ m{^(..)(..)}si;
-    my $fullpath = "$ENV{USERTOP}/" . bucket($userId) . "/$firsttwo/$secondtwo/$user_id/$filename";
+    my $fullpath = "$ENV{USERTOP}/" . bucket($user_id) . "/$firsttwo/$secondtwo/$user_id/$filename";
     my ($dirpath) = $fullpath =~ m{^(.*)/}si;
     mkpath($dirpath) unless -d $dirpath;
     return $fullpath;

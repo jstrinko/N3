@@ -24,8 +24,8 @@ sub new {
 		push @tmp_parts, $parts[$y];
 	    }
 	    my $tmp_uri = "/" . join("/", @tmp_parts);
-	    if ($Pages_Ref{$tmpUri}) {
-		$self = $Pages_Ref{$tmpUri};
+	    if ($Pages_Ref{$tmp_uri}) {
+		$self = $Pages_Ref{$tmp_uri};
 		my @values;
 		foreach my $y (($x+1)..scalar @parts) {
 		    push @values, $parts[$y];
