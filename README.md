@@ -9,3 +9,4 @@ sudo apt-get install libapache2-request-perl
 
 cpan
 install Crypt::CBC
+install JSON

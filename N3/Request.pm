@@ -5,7 +5,6 @@ use strict;
 use N3;
 use N3::Page;
 use N3::User;
-use N3::Montage;
 use Apache2::Const -compile => qw(REDIRECT);
 
 sub set_page {
@@ -46,7 +45,7 @@ sub cookie {
     return $self->{cookies}{$name};
 }
 
-sub customParam {
+sub custom_param {
     my $self = shift;
     my $name = shift;
     if (@_) {

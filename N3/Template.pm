@@ -1,6 +1,7 @@
 package N3::Template;
 
 use N3;
+use Data::Dumper;
 
 sub include {
     my $self = shift;
@@ -38,40 +39,6 @@ sub make_xml {
 	$xml .= "</$key>";
     }
     return $xml;
-}
-
-sub scripts {
-    my $self = shift;
-    my $junk = shift;
-    my $script_list = shift;
-    $script_list =~ s{^\s*}{}gis;
-    $script_list =~ s{\s*$}{}gis;
-    my @scripts = split(/\s+/, $script_list);
-    my $version;
-    foreach my $script (@scripts) {
-        my $tmp_page = N3::Page->new($script);
-        $version += $tmp_page->version;
-    }
-    my $page = N3->page;
-    my $script_text = join('+', map { $page->uri_to_short($_); } @scripts);
-    return "<script language='Javascript' type='text/javascript' src='" . $self->httpSite . '/script/' . $script_text . "/script.js?version=$version'></script>";
-}
-
-sub css {
-    my $self = shift;
-    my $junk = shift;
-    my $css_list = shift;
-    $css_list =~ s{^\s*}{}gis;
-    $css_list =~ s{\s*$}{}gis;
-    my @css_uris = split(/\s+/, $css_list);
-    my $version;
-    foreach my $uri (@css_uris) {
-        my $tmp_page = N3::Page->new($uri);
-        $version += $tmp_page->version;
-    }
-    my $page = N3->page;
-    my $css_text = join('+', map { $page->uri_to_short($_); } @css_uris);
-    return "<link rel='stylesheet' type='text/css' href='" . $self->http_site . "/css/" . $css_text . "/style.css?version=$version'/>";
 }
 
 sub http_site {

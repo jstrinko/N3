@@ -19,8 +19,8 @@ sub handler {
     my $request = N3->request($r);
     my $page = N3->page;
     $page->run;
-    my $file = $request->pnotes('contentsFromFile');
-    my $type = $request->custom_param('contentType') || 'text/html';
+    my $file = $request->pnotes('contents_from_file');
+    my $type = $request->custom_param('content_type') || $page->content_type;
     $request->content_type($type);
     if ($file) {
 	my $content_length = -s $file;
