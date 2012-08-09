@@ -57,7 +57,7 @@ sub new {
 
 sub run {
     my $self = shift;
-    if (!$Pages_Cache{$self->{uri}}) {
+    if (!$Pages_Cache{$self->{uri}} or $ENV{ENVIRONMENT_TYPE} eq 'dev') {
 	if ($self->{type} eq 'collection') {
 	    $Pages_Cache{$self->{uri}}->{elements} = $self->build_collection;
 	}
@@ -88,17 +88,10 @@ sub type {
     return $self->{type};
 }
 
-sub subtype {
-    my $self = shift;
-    $self->{subtype} = shift if @_;
-    $self->{subtype} ||= 'html';
-    return $self->{subtype};
-}
-
 sub content_type {
     my $self = shift;
     $self->{content_type} = shift if @_;
-    return $self->{content_type} || $Content_Type_Map{$self->subtype};
+    return $Content_Type_Map{$self->{content_type}} || $self->{content_type};
 }
 
 sub build_collection {
@@ -113,7 +106,7 @@ sub build_collection {
 	my $page_object = bless {}, $name_space;
 	my $perl_contents = $self->package_perl_content("", $name_space);
 	push @tmp_elements, $self->run_perl_content($page_object, $perl_contents);
-	if ($self->{subtype} eq 'javascript') {
+	if ($self->{content_type} eq 'javascript') {
 	    if ($file =~ m{\.jst$}i) {
 		push @jst_elements, $self->create_jst_element($contents, $file);
 	    }
@@ -121,7 +114,7 @@ sub build_collection {
 		push @tmp_elements, $self->run_html_content($page_object, $contents, 1);
 	    }
 	}
-	elsif ($self->{subtype} eq 'css') {
+	elsif ($self->{content_type} eq 'css') {
 	    push @tmp_elements, $self->run_html_content($page_object, $contents, 1);
 	}
 	else {
