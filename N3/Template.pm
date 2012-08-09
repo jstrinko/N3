@@ -48,10 +48,10 @@ sub http_site {
     return "http://" . $http_site;
 }
 
-sub img_src {
+sub static_src {
     my $self = shift;
     my $src = shift;
-    return $ENV{IMAGE_SERVER} . $src;
+    return $ENV{STATIC_SERVER} . $src;
 }
 
 sub hostname {

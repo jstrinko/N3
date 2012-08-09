@@ -131,7 +131,7 @@ sub build_collection {
     if (@jst_elements) {
 	push @tmp_elements, {
 	    type => 'html',
-	    html => "(function() { window.JST = window.JST || {}; " . join("\n", @jst_elements) ." });",
+	    html => "(function() { window.JST = window.JST || {}; " . join("\n", @jst_elements) ." })();",
 	};
     }
     return wantarray ? @tmp_elements : \@tmp_elements;
@@ -199,11 +199,13 @@ sub run_html_content {
 		elsif ($object_name eq 'user') {
 		    $object = N3->user;
 		}
+		my @args;
+		@args = eval "($args)";
 		push @tmp_elements, {
 		    type => 'object',
 		    object => $object,
 		    method => $method,
-		    argsString => $args,
+		    args => \@args,
 		};		    
 	    }
 	}
@@ -290,7 +292,15 @@ sub render {
     elsif ($element->{type} eq 'object') {
 	my $object = $element->{object};
 	my $method = $element->{method};
-	return $object->$method($self->parse_args($element->{args_string}));
+	if ($element->{args_string}) {
+	    return $object->$method($self->parse_args($element->{args_string}));
+	}
+	elsif ($element->{args}) { 
+	    return $object->$method(@{$element->{args}});
+	}
+	else {
+	    return $object->$method;
+	}
     }
 }
 
