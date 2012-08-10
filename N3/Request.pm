@@ -61,4 +61,10 @@ sub redirect {
     $self->status(Apache2::Const::REDIRECT);
 }
 
+sub data {
+    my $self = shift;
+    $self->{data} = shift if @_;
+    return $self->{data};
+}
+
 1;

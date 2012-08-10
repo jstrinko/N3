@@ -7,8 +7,8 @@ use Apache2::RequestRec;
 use Apache2::RequestIO;
 use Apache2::RequestUtil;
 use Apache2::Const -compile => ':common';
-
 use Compress::Zlib;
+use JSON;
 
 use N3;
 
@@ -34,13 +34,20 @@ sub handler {
 	}
     }
     else {
-	my $contents = $page->contents;
+	my $contents;
+	if ($request->headers_in->{'Accept'} =~ m{(application/json|text/javascript)}si && $request->data) {
+	    $contents = to_json($request->data);
+	}
+	else {
+	    $contents = $page->contents;
+	}
 	if ($request->can_gzip) {
 	    $request->content_encoding('gzip');
 	    $contents = Compress::Zlib::memGzip($contents);
 	}
 	$request->headers_out->set('Content-Length', length($contents));
 	$request->status(200) unless $request->status;
+	
 	$request->print($contents) unless $request->custom_param('headerOnly');
     }
     if ($request->status eq Apache2::Const::REDIRECT) {
