@@ -132,12 +132,25 @@ sub build_collection {
 
 sub create_jst_element {
     my $self = shift;
-    my $content = shift;
+    my $contents = shift;
     my $file = shift;
-    $content =~ s{'}{\\'}g;
-    $content =~ s{\n}{\\n}g;
+    $contents =~ s{\n}{\\n}g;
+    my @parts;
+    while ($contents =~ m{\G(.*?)(<%.*?%>)}mcosg) {
+	my $html = $1;
+	my $js = $2;
+	$html =~ s{'}{\\'}g;
+	$js =~ s{\\}{\\\\}g;
+	$js =~ s{'}{\\'}g;
+	push @parts, $html;
+	push @parts, $js;
+    }
+    my $pos = pos($contents) || 0;
+    my $html = substr($contents, $pos, length($contents) - $pos);
+    $html =~ s{'}{\\'}g;
+    push @parts, $html;
     my $short = $self->relative_file_location($file);
-    return "window.JST['$short'] = _.template('$content');";
+    return "window.JST['$short'] = _.template('" . join("", @parts) . "');";
 }
 
 sub expand_collection_files {
