@@ -13,7 +13,7 @@ sub set_page {
     N3->page($page);
 }
 
-sub setUser {
+sub set_user {
     my $self = shift;
     my $key = $self->key;
     my $class = $key . "::User";

@@ -10,6 +10,7 @@ init();
 
 my %Pages_Ref;
 my %Pages_Cache;
+my %File_List;
 my %Content_Type_Map = (
     html => 'text/html',
     javascript => 'text/javascript',
@@ -40,7 +41,7 @@ sub new {
 		    $self->{'values'} = \@values;
 		}
 		else {
-		    die "Page does not exist: $uri";
+		    die "Page does not exist: $uri; valid pages:\n" . join("\n", keys %Pages_Ref);
 		}
 	    }
 	}
@@ -53,6 +54,10 @@ sub new {
     }
 
     return bless $self, $class;
+}
+
+sub files {
+    return \%File_List;
 }
 
 sub run {
@@ -101,6 +106,7 @@ sub build_collection {
     my @jst_elements;
     my @files = $self->expand_collection_files;
     for my $file (@files) {
+	$File_List{$file} = $self->{uri};
 	my $contents = N3::Util::file_contents($file);
 	my $name_space = $self->name_space_from_location($file);
 	my $page_object = bless {}, $name_space;
@@ -274,9 +280,11 @@ sub build_page {
     my $html_contents;
     my $perl_contents;
     if (-e $html_file) {
+	$File_List{$html_file} = $self->{uri};
 	$html_contents = N3::Util::file_contents($html_file);
     }
     if (-e $perl_file) {
+	$File_List{$perl_file} = $self->{uri};
 	$perl_contents = N3::Util::file_contents($perl_file);
     }
     my @tmp_elements;
@@ -332,8 +340,19 @@ sub version {
     return $self->{version};
 }
 
+sub pages_file {
+    return "$ENV{SRCTOP}/$ENV{PROJECT}/pages.json";
+}
+
+sub remove_cached_uri {
+    my $uri = shift;
+    delete $Pages_Cache{$uri};
+}
+
 sub init {
-    my $pages_file = "$ENV{SRCTOP}/$ENV{PROJECT}/pages.json";
+    %Pages_Ref = ();
+    %Pages_Cache = ();
+    my $pages_file = pages_file();
     my $content = N3::Util::file_contents($pages_file);
     my $json = from_json($content);
     foreach my $data (@$json) {

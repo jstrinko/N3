@@ -6,13 +6,17 @@ use FileHandle;
 use Apache2::RequestRec;
 use Apache2::RequestIO;
 use Apache2::RequestUtil;
+use Apache2::Process;
+use ModPerl::Util;
 use Apache2::Const -compile => ':common';
 use Compress::Zlib;
 use JSON;
-
 use N3;
+use N3::Util;
 
+our %Children;
 my $Chunk_Size = 32768;
+my %Mtimes = {};
 
 sub handler {
     my $r = shift;
@@ -59,6 +63,53 @@ sub handler {
 }
 
 sub cleanup {
+}
+
+sub child_init {
+    my ($pool, $s) = @_;
+    warn "New Child $$";
+}
+
+sub child_exit {
+    my ($pool, $s) = @_;
+    warn "Dead Child $$";
+}
+
+sub reload_modules {
+    my @files = grep { 
+	$_ 
+	} map { 
+	    my $file = $INC{$_};
+	    $file if substr($file, 0, length($ENV{SRCTOP})) eq $ENV{SRCTOP};
+	} keys %INC;
+    foreach my $file (@files) {
+	if (is_stale($file)) {
+	    warn "RELOADING $file";
+	    my $contents = N3::Util::file_contents($file);
+	    eval { $contents }
+	}
+    }
+    if (is_stale(N3::Page::pages_file())) {
+	warn "Pages file is stale - reloading";
+	N3::Page::init();
+    }
+    my $page_files = N3::Page::files();
+    foreach my $file (keys %$page_files) {
+	if (is_stale($file)) {
+	    warn "$file is stale, removing $page_files->{$file} from cache";
+	    N3::Page::remove_cached_uri($page_files->{$file});
+	}
+    }
+    return;
+}
+
+sub is_stale {
+    my $file = shift;
+    my $mtime = (stat $file)[9];
+    $Mtimes{$file} = $mtime unless $Mtimes{$file};
+    my $is_older = $mtime > $Mtimes{$file};
+    $Mtimes{$file} = $mtime;
+    return $is_older;
 }
 
 1;
