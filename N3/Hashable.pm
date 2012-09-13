@@ -19,11 +19,12 @@ sub hash {
     elsif ($ref eq 'HASH' || $self->isa('N3::Hashable')) {
 	my $hash = {};
 	foreach my $key (keys %$self) {
+	    next if $key =~ m{^_}si;
+	    next if ref($self->{$key}) eq 'CODE';
 	    $hash->{$key} = N3::Hashable::hash($self->{$key});
 	}
 	return $hash;
     }
-    
 }
 
 1;

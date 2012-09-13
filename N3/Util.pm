@@ -3,7 +3,7 @@ package N3::Util;
 use Crypt::CBC;
 use MIME::Base64 ();
 
-our $Cipher_Key = '5chw347yb4115';
+our $Cipher_Key = $ENV{ENCRYPTION_KEY};
 
 sub file_contents {
     my $file = shift;
@@ -32,7 +32,12 @@ sub encrypt {
     my ($junk, $string) = @_;
     $string .= "XXXXXXXX" if length $string < 8;
     my $encrypted;
-    my $cipher = Crypt::CBC->new(-key => $Cipher_Key, -salt => 1);
+    my $cipher = Crypt::CBC->new(
+	-key => $Cipher_Key, 
+	-cipher => 'Blowfish',
+	-salt => 1,
+	-header => 'salt',
+    );
     $encrypted = $cipher->encrypt($string);
     my $encoded = MIME::Base64::encode($encrypted, '');
     $encoded =~ s/\//-/g;
@@ -47,7 +52,12 @@ sub decrypt {
     $string =~ s/\./+/g;
     my $decoded = MIME::Base64::decode($string);
     my $plaintext;
-    my $cipher = Crypt::CBC->new(-key => $Cipher_Key, -salt => 1);
+    my $cipher = Crypt::CBC->new(
+	-key => $Cipher_Key, 
+	-cipher => 'Blowfish',
+	-salt => 1,
+	-header => 'salt',
+    );
     $plaintext = $cipher->decrypt($decoded);
     $plaintext =~ s/XXXXXXXX$//;
     return $plaintext;
